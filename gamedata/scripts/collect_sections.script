@@ -1,0 +1,60 @@
+--[[---------------------------------------------------------------------------------------
+	File              : collect_sections.script
+	Description       : ˜˜˜˜˜ ˜˜˜˜˜˜ ˜˜˜˜˜˜˜ ˜˜˜˜˜˜˜˜ ˜ ˜˜˜˜˜˜˜
+	Created           : 11.05.2014
+	Last update       : 03.12.2015
+	Copyright         : naxac / naxac.spaces.ru /
+--]] ---------------------------------------------------------------------------------------
+
+
+
+local log = function(fmt, ...)
+	fmt = string.format(fmt, ...)
+	if log1 then
+		log1(fmt)                           -- X-Ray Extensions
+	elseif log123 then
+		log123(fmt)                         -- Lua Extensions
+	elseif ver_prefix == 'la' then
+		_G.log(fmt)                         -- Lost Alpha
+	elseif ver_prefix == 'soc' or alife() then -- crutches
+		fmt = string.gsub(fmt, "%s", "_")
+		get_console():execute(fmt)
+	end
+end
+
+local sections = {}
+local spawn_classes = {
+	wpn = {},
+	ammo_and_attachments = {},
+	outfits = {},
+	artefacts = {},
+	monsters = {},
+	stalkers = {},
+	normal = {},
+	quest_items = {}
+}
+
+function main()
+	if io then
+		local fs = getFS()
+		if fs:exist("$game_config$", "spawn_list.ltx") == nil then
+			log("collect_sections: need spawn_list.ltx, but not found in fs")
+		else -- ini ˜˜˜˜, ˜˜˜˜˜˜ ˜˜ ˜˜˜˜
+			local spawn_ini = ini_file("spawn_list.ltx")
+			for cls in pairs(spawn_classes) do
+				if spawn_ini:section_exist(cls) then
+					sections[cls] = {}
+					local result_ign, id, value_ign
+					for i = 0, spawn_ini:line_count(cls) - 1 do
+						result_ign, id, value_ign = spawn_ini:r_line(cls, i, "", "")
+						table.insert(sections[cls], id)
+					end
+				end
+			end
+		end
+	else
+		log("collect_sections: cant use io library")
+	end
+
+	return sections
+end
