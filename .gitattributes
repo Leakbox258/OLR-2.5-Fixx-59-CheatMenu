@@ -1,0 +1,2 @@
+*.ltx linguist-language=yaml
+*.script linguist-language=lua
